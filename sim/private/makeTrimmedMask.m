@@ -1,7 +1,7 @@
 function trimmed = makeTrimmedMask(mStruct, limits)
 % Trim mask structure (mStruct) to limits
 % Consolidated multiple lines under "SKULL IMPORT and TRIMMING"
-%   simulation3D_setup(): (trimming section)
+%   tusx_sim_setup(): (trimming section)
 %
 % limits: Matlab subscript indices of extent of volume to be used
 %

@@ -1,5 +1,5 @@
-function medium = simulation3D_setup_medium(o, p, scaledMask, brain, skull, water, alphaPower)
-% simulation3D_setup_medium Helper function for simulation3D_setup
+function medium = sim_setup_medium(o, p, scaledMask, brain, skull, water, alphaPower)
+% sim_setup_medium Helper function for tusx_sim_setup
 %   Sets 'medium' struct needed for k-Wave
 arguments
     o                       struct

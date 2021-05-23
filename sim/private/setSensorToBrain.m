@@ -8,7 +8,7 @@ function sensorMask = setSensorToBrain(brainMaskNifti, skullNifti,...
 %   Trim, scaled to match
 %       Run same functions as skull mask
 %   
-%   For simulation3D_setup()
+%   For tusx_sim_setup()
 %
 %   Optional name-value pairs:
 %       reorientToGrid: Logical

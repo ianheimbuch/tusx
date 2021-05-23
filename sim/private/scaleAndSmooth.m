@@ -1,10 +1,10 @@
 function scaled = scaleAndSmooth(trimmed, scale, niftiFile, isWater, reoriented, coerceToBinary)
-%SCALEANDSMOOTH Scales and smooths mask structure in simulation3D_setup
+%SCALEANDSMOOTH Scales and smooths mask structure in tusx_sim_setup
 % Calls maskScaler_sim3d()
 % Consolidated "SKULL UPSCALING (INTERPOLATION)" and "SKULL SMOOTHING
 % (DILATION AND EROSION)"
 %
-% For simulation3D_setup()
+% For tusxSimSetup()
 %
 %   coerceToBinary option added to allow structural images to be passed
 %   through

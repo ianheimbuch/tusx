@@ -1,7 +1,7 @@
 function nifti = makeOrLoadNiftiMat(niftiFile, niftiStruct, saveToDrive)
 % % Create grids for scanner anatomical coordinates
 %   Either loads existing .mat or makes it
-%   (helper function for simulation3D_setup)
+%   (helper function for tusx_sim_setup)
 arguments
     niftiFile   (1,:)   char
     niftiStruct         struct

@@ -1,29 +1,18 @@
-function t1 = ...
-    simulation3D_t1Export(t1Nifti, scalpLocation, ctxTarget, scale, alphaPower, varargin)
-%simulation3D_t1Export Produces volume to match mask made in simulation3D_setup()
-%   This function mirrors initial steps done in simualtion3D_setup() in
-%   which a skull mask volume is rotated and/or upscaled. Process here
-%   allows one to produce produce a structural volume that matches
-%   transformations done to the mask (thereby matching the simulated
-%   pressure volume)
+function [kgrid, medium, source, sensor, input_args, infoStruct, grids] = ...
+    tusx_sim_setup(skullNifti, scalpLocation, ctxTarget, scale,...
+    alphaPower, varargin)
+%TUSX_SIM_SETUP Prepare simulation for k-Wave
 %
-%   This function can (and should) take the exact same inputs as those
-%   provided to simulation3D_setup() for an image's respective simulation.
-%
-%   simulation3D_t1Export(t1Nifti, scalpLocation, ctxTarget,
+%   tusx_sim_setup(skullNifti, scalpLocation, ctxTarget,
 %       scale, alphaPower)
-%   
-%   Output: t1
-%       Structure with the following fields:
-%           'grids'
-%           'size'
-%           'voxelDimensions'
-%           'voxelDimensions_unit'
-%           'affines'
-%           'img'
+%   tusx_sim_setup(skullNifti, scalpLocation, ctxTarget,
+%       scale, alphaPower, Name, Value)
 %
-%   t1Nifti:        File path to nifti file
-%   target:         'CalcarineSulcus' or 'HandKnob'
+%   Outputs: [sensor_data, kgrid, medium, source, infoStruct]
+%   
+%   Inputs:
+%
+%   skullNifti:     File path to nifti file
 %   scalpLocation:  3-element array of NIfTI voxel coordinates (fslX, fslY,
 %                   fslZ). Example: [104,6,122]
 %   ctxTarget:      3-element array of NIfTI voxel coordinates (fslX, fslY,
@@ -37,18 +26,10 @@ function t1 = ...
 %                       1 will run well. alphaPower == 1.01 will cause
 %                       errors. alphaPower == 1.1 may be safer bet if
 %                       dispersion is desired.
-%   runOnGPU:       (Optional; default: false) Boolean.
 %   
 %   Optional Name-Value Pairs:
 %
-%   'coerceImageToBinary': Boolean. Default: false
-%                          Coersion to binary is avoided in
-%                          simulation3D_t1Export by default so that
-%                          structural image data stays intact. Setting this
-%                          option would convert all inputs into a binary
-%                          mask. As such, it is suggested this only be set
-%                          to true if the input ('t1Nifti') is a binary
-%                          mask
+%   'runOnGPU': Boolean. Default: false.
 %   'brainMaskNifti': Paired with a string or character
 %                     Presence restricts k-Wave sensor grid to brain mask
 %                     (significantly reducing memory usage / runtime)
@@ -80,9 +61,29 @@ function t1 = ...
 %                        smoothing of acoustic medium volume. Width of
 %                        convolution kernel for smoothing is set to value
 %                        of 'smoothKernelWidth'
+%   'initialSmooth': If set to true, an initial smoothing of the skull mask
+%                    will be performed before doing any other processing.
+%                    Uses morphological image processing (morphological
+%                    close followed by morphological open)
 %   'initialKernelRadius': Option to set radius of sphere used to perform
 %                          initialSmooth process. Unit: Voxels (Default: 1,
 %                          which is a safe bet since this is a first pass)
+%
+%   Structure format for brain, water, or skull
+%       Both:
+%       .density                [kg/m^3]
+%       .speed                  [m/s]
+%       And one or more of the following:
+%       .alphaCoeff             [dB/(MHz^y cm)]
+%       .attenConstant_Np_m     [Np / m]
+%       .attenConstant_dB_cm    [dB / cm]
+%
+%   WARNING: Default acoustic values are for 0.5 MHz. Due to adjustable
+%   alpha power, acoustic values are not guaranteed to properly adjust to
+%   frequencies other than 0.5 MHz. Consider setting your own acoustic
+%   values always.
+%
+%   Website: www.TUSX.org
 %
 %   Toolboxes:  Image Processing Toolbox
 %               Paralel Processing Toolbox
@@ -90,9 +91,10 @@ function t1 = ...
 %                   Copyright (C) 2009-2017 Bradley Treeby
 %   Add-ons:    Tools for NIfTI and ANALYZE image, v. 1.27 by Jimmy Shen
 %
-%   Ian Heimbuch
+% Copyright 2021 Ian S. Heimbuch
+%   Open Source License: BSD-3-Clause (see LICENSE.md)
 arguments
-    t1Nifti               char
+    skullNifti              char
     scalpLocation   (1,3)           {mustBeNumeric}
     ctxTarget       (1,3)           {mustBeNumeric}
     scale           (1,1)           {mustBeInteger, mustBePositive}
@@ -101,7 +103,7 @@ end
 arguments (Repeating)
     varargin
 end
-warning('This function, while public, has not been heavily vetted.')
+
 % Parse inputs
 %   transducerSpecs, brain, and skull: structures that specify respective
 %   acoustic parameters have defaults but they can be replaced as pair-wise
@@ -110,18 +112,126 @@ warning('This function, while public, has not been heavily vetted.')
 %       runOnGPU, applySmoothing, restrictSensorToBrain, createSkullNoise,
 %       isWater, isBrain
 %       Optional: kernelWidth (numeric; set if applySmoothing == 1)
-[~, ~, ~, ~, ~, ~, o, p] = parse_inputs(t1Nifti, alphaPower, varargin{:});
+[brainMaskNifti, CFLnumber, transducerSpecs, brain, skull, water, o, p] =...
+    parse_inputs(skullNifti, alphaPower, varargin{:});
 
-% Override input:
-o.initialSmooth = false; % So structural image is not smoothed
+% Set parallel or not
+CPUorGPU = setParallel(o.runOnGPU);
 
-t1 = simulation3D_setup_volumePrep(o, p, t1Nifti,...
-    scalpLocation, ctxTarget, scale, 'coerceImageToBinary', false);
-%   coerceImageToBinary == false so T1 image data stays intact
+% Skull processing:
+%   Import, Trimming, Upscaling
+[scaled, limits] = sim_setup_volumePrep(o, p, skullNifti,...
+    scalpLocation, ctxTarget, scale);
 
-% Rename t1.mask to t1.img
-t1 = renameT1Field(t1);
+% =========================================================================
+% SIMULATION SETUP
+% =========================================================================
+    
+% Check voxel unit. Convert to meters, if needed
+spacing_m = getSpacing_m(scaled.voxelDimensions, scaled.voxelDimensions_unit);
 
+% Set the properties of the propagation medium    
+medium = sim_setup_medium(o, p, scaled.mask, brain, skull, water, alphaPower);
+
+% Create object of class kWaveGrid:
+%   Computational grid on which simulations will be done
+kgrid = kWaveGrid(size(scaled.mask,1), spacing_m.dim1,...
+                  size(scaled.mask,2), spacing_m.dim2,...
+                  size(scaled.mask,3), spacing_m.dim3);
+
+% Create the time array for k-Wave
+kgrid.makeTime(medium.sound_speed, CFLnumber);
+
+% Transducer placement
+[source.p_mask, transd_ind, target_ind] = transducerPlacement(scalpLocation,...
+    ctxTarget,...
+    scaled.grids.Xscaled,...
+    scaled.grids.Yscaled,...
+    scaled.grids.Zscaled,...
+    transducerSpecs.focalLength_m,...
+    spacing_m.dim1);
+
+% % Set pressure pattern (transducer output)
+%   Define time-varying sinusoidal source/s
+source = sim_setup_sourceTraces(source, kgrid, medium, transducerSpecs);
+
+% Adjust the pressure traces to match the desired focal length
+%   NOTE: Currently uses the radius of curvature of the makeBowl() function
+%   for the focal length here. Ideally there would be two focal lengths:
+%   the curvature of radius for makeBowl() (transducerSpecs.focalLength_m)
+%   and a focal length for focus(). Here we would need the focal length for
+%   focus().
+%
+%   If transducerSpecs.focalLength_m is used as the focal length here, that
+%   means sim_setup_sourceFocus is slightly refining the offsets
+%   of the pressure delays to more accurately matched the aliased curve
+source.p = sim_setup_sourceFocus(source, kgrid,...
+    transd_ind, target_ind, transducerSpecs.focalLength_m);
+
+% % Set sensor
+%   Create a sensor mask covering the entire computational domain
+sensor = struct; % Initialize
+if o.restrictSensorToBrain
+    sensor.mask = setSensorToBrain(brainMaskNifti, skullNifti, scale, limits,...
+        'reorientToGrid', o.reorientToGrid,...
+        'scalp', scalpLocation, 'target', ctxTarget);
+    checkSensorMediumMatch(sensor, medium);
+else
+    sensor.mask = true(size(source.p_mask));
+end
+%   Set the record mode capture the final wave-field and the statistics at
+%   each sensor point 
+sensor.record = p.Results.record;
+
+% Choose perfectly matched layer (PML) to avoid large prime factors
+PMLSize = pmlPicker3D(kgrid);
+
+% Assign the k-Wave input options
+input_args = {'DisplayMask', source.p_mask, 'PMLInside', false, ...
+    'PlotPML', false, 'DataCast', CPUorGPU, 'PlotSim', false, ...
+    'PMLSize', PMLSize};
+
+% Set note on 'ticks', if not created
+if ~isfield(scaled, 'ticks')
+    scaled.ticks = 'n/a';
+end
+
+% % Save additional info
+infoStruct = struct;
+% Acoustic parameters
+infoStruct.acoustic.brain           = brain;
+infoStruct.acoustic.skull           = skull;
+infoStruct.acoustic.transducerSpecs = transducerSpecs;
+infoStruct.acoustic.water           = water;
+infoStruct.acoustic.isWater         = o.isWater;
+infoStruct.acoustic.isBrain         = o.isBrain;
+% Locations in new matrix
+infoStruct.matrixIndices.target     = target_ind;
+infoStruct.matrixIndices.transducer = transd_ind;
+% Vectors of matrix tics (post-scale/trim, voxel and scanAnat)
+infoStruct.dimensions.ticks_vox                     = scaled.ticks;
+infoStruct.dimensions.scale                         = scale;
+infoStruct.original.limits_for_initial_subvolume    = limits;
+infoStruct.original.niftiFile                       = skullNifti;
+% Affine transformation matrices
+infoStruct.affines = scaled.affines;
+% kWave inputs
+infoStruct.kWave.input_args = input_args;
+infoStruct.kWave.CFLnumber  = CFLnumber;
+% Input parameters
+infoStruct.inputArguments.niftiFile     = skullNifti;
+infoStruct.inputArguments.scalpLocation = scalpLocation;
+infoStruct.inputArguments.ctxTarget     = ctxTarget;
+infoStruct.inputArguments.scale         = scale;
+infoStruct.inputArguments.alphaPower    = alphaPower;
+infoStruct.inputArguments.CFLnumber     = CFLnumber;
+infoStruct.inputArguments.parser        = p;
+infoStruct.inputArguments.options       = o;
+% Output grids
+grids = struct;
+grids.origNii.dim1 = scaled.grids.Xscaled;
+grids.origNii.dim2 = scaled.grids.Yscaled;
+grids.origNii.dim3 = scaled.grids.Zscaled;
 end
 %% Helper functions
 function p = getDefaultParserObject
@@ -143,7 +253,7 @@ default.initialSmooth       = false;
 default.initialKernelRadius  = 1;
 ischarORstring = @(x) ischar(x) || isstring(x);
 isnumeric1or3 = @(x) isnumeric(x) & (length(x) == 1 | length(x) == 3);
-addOptional(p, 'runOnGPU', default.runOnGPU, @islogical);
+addParameter(p, 'runOnGPU', default.runOnGPU, @islogical);
 addParameter(p, 'brainMaskNifti', default.brainMaskNifti, ischarORstring);
 addParameter(p, 'CFLnumber', default.CFLnumber, @isnumeric);
 addParameter(p, 'skullNoiseMag', default.skullNoiseMag, @isscalar);
@@ -179,12 +289,12 @@ switch p.Results.brainMaskNifti
         restrictSensorToBrain = false;
     otherwise
         restrictSensorToBrain = true;
-        brainMaskNifti = p.Results.brainMaskNifti;
         % Check that the two niftis match
         if ~doNiftisMatchSpace(brainMaskNifti, skullNifti)
             error('skullNifti and brainMaskNifti files do not match')
         end
 end
+brainMaskNifti = p.Results.brainMaskNifti;
 
 % Set CFL number (default is 0.3)
 CFLnumber   = p.Results.CFLnumber;
@@ -255,9 +365,3 @@ if (o.initialKernelRadius == false) && ... % If initialSmooth == false and
     error([w1 w2]) % Could arguably be a warning, but it is at the start
 end
 end
-
-function t1 = renameT1Field(t1)
-t1.img = t1.mask;
-t1 = rmfield(t1, 'mask');
-end
-

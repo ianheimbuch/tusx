@@ -1,6 +1,6 @@
-function [scaled, limits] = simulation3D_setup_volumePrep(o, p, skullNifti,...
+function [scaled, limits] = sim_setup_volumePrep(o, p, skullNifti,...
     scalpLocation, ctxTarget, scale, options)
-% simulation3D_setup_volumePrep Helper function for simulation3D_setup
+% sim_setup_volumePrep Helper function for tusx_sim_setup()
 %   Prepares image volume for use in simulation. Includes cropping,
 %   reorientation, smoothing, and scaling.
 arguments
@@ -12,7 +12,7 @@ arguments
     scale           (1,1)           {mustBeInteger, mustBePositive}
     options.coerceImageToBinary (1,1) logical {mustBeNumericOrLogical} = true
 end
-% Private function for simulation3D_setup
+% Private function for tusx_sim_setup
 %   Consolidated lines under sections:
 %       SKULL IMPORT and Trimming
 %       SKULL UPSCALING (INTERPOLATION)

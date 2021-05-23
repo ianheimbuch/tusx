@@ -1,11 +1,11 @@
 function [new, affines] = reorientToGrid(nifti, scalp, target, mask_filename, options)
-%reorientToGrid Wrapper function for simulation3D_setup
+%reorientToGrid Wrapper function for tusx_sim_setup
 %   Wrapper of gridRotation()
 %
 % Input:
-%   nifti:  nifti structure from simulation3D_setup
-%   scalp:  from simulation3D_setup
-%   target: from simulation3D_setup
+%   nifti:  nifti structure from tusx_sim_setup
+%   scalp:  from tusx_sim_setup
+%   target: from tusx_sim_setup
 %
 %   Optional:
 %       interpMethod: Interpolation method that will be used for rotated

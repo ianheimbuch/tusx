@@ -1,6 +1,6 @@
 function medium = addNoise_sim3D(medium, mask, skull, noiseMag)
 % Wrapper function for addNoiseToSkull
-%   Used in simulation3D_setup()
+%   Used in tusx_sim_setup()
 
 % Save original values (for reference)
 if ~isfield(medium, 'original')     % If not yet created,

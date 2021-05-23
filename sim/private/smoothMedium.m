@@ -4,7 +4,7 @@ function medium = smoothMedium(medium, kernelWidth)
 %   grid points on each of the three non-scalar medium matrices
 %   
 %   Used on acoustic medium structure as used in k-Wave's
-%   kspaceFirstOrder3D function (also used in simulation3D_setup)
+%   kspaceFirstOrder3D function (also used in tusx_sim_setup)
 %
 %   Currently private because it does not currently deal with all
 %   potential medium fields

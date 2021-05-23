@@ -1,5 +1,5 @@
 function limits = setLimits(trimSize, nifti, varargin)
-% setLimits: Set limits for simulation3D_setup()
+% setLimits: Set limits for tusx_sim_setup()
 % limits = setLimits(trimSize, targetName, nifti, scale, scalpLocation,
 %                    ctxTarget, reorientToGrid, origSize)
 % limits = setLimits(targetName, nifti)
@@ -17,7 +17,7 @@ function limits = setLimits(trimSize, nifti, varargin)
 %   reorientToGrid: Boolean
 %   origSize:       Size (integer)
 %
-% Helper function of simulation3D_setup()
+% Helper function of tusx_sim_setup()
 % Converts trm (struct) into vector needed for subvolume()
 % Structure "nifti" is needed so know the size
 arguments
@@ -67,7 +67,7 @@ switch nargin
         scalpLocation = varargin{2};
         ctxTarget   = varargin{3};
         % widthTarget = setwidthTarget(nifti.size);
-        widthTarget = trimSize; % Now set by simulation3D_setup param (or default)
+        widthTarget = trimSize; % Now set by tusx_sim_setup param (or default)
         dimWidth    = setDimWidth(widthTarget, scale); % For 512, dimWidth = 122
         dim2mid     = round(mean([scalpLocation(2) ctxTarget(2)]));
         trm = fitTrmToTrajectory(scale, scalpLocation, ctxTarget,...
@@ -277,7 +277,7 @@ switch nargin
         ctxTarget   = varargin{3};
         origSize    = varargin{5};
         % widthTarget = setwidthTarget(origSize, scale);
-        widthTarget = trimSize; % Now set as simulation3D_setup param (or default)
+        widthTarget = trimSize; % Now set as tusx_sim_setup param (or default)
         dimWidth    = setDimWidth(widthTarget, scale); % For 512, scale 4: dimWidth = 122
         % Find current indices of points. Use them
         %   scalp_ind & target_ind

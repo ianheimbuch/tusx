@@ -1,7 +1,7 @@
 function saveNiftiMat(niftiFile, nifti, overwrite)
 % saveNiftiMat Save .mat 'nifti' struct
 %   Does not save if file already exists unless 'overwrite' is set to true
-%   (helper function for simulation3D_setup)
+%   (helper function for tusx_sim_setup)
 arguments
     niftiFile (1,:) char
     nifti           struct

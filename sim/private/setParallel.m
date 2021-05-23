@@ -3,7 +3,7 @@ function CPUorGPU = setParallel(runOnGPU)
 %   If runOnGPU == true:  Tries to run on parallel
 %   If runOnGPU == false: Runs on CPU
 %
-%   For simulation3D_setup()
+%   For tusx_sim_setup()
 
 % Check input is boolean/logical
 if ~islogical(runOnGPU)

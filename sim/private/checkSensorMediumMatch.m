@@ -1,5 +1,5 @@
 function checkSensorMediumMatch(sensor, medium)
-% CHECKSENSORMEDIUMMATCH Internal test function for simulation3D_setup
+% CHECKSENSORMEDIUMMATCH Internal test function for tusx_sim_setup
 %   Returns error if grid fields of sensor and medium structs do not match
 %   sizes
 %       Could occur if trimming processes failed

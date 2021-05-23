@@ -1,6 +1,6 @@
 function [newAffines] = scaleAffines(affines, scale)
 %scaleAffines Scale affine transformation matrices
-%   Private function for scaleAndSmooth (of simulation3D_setup)
+%   Private function for scaleAndSmooth (of tusx_sim_setup)
 if scale == 1
     newAffines = affines; % No change to affine matrices
 else

@@ -1,6 +1,6 @@
 function spacing_m = getSpacing_m(voxelDimensions, dimensionUnit)
 % getSpacing_m Enable conversion to meters
-%   Private function for simulation3D_setup()
+%   Private function for tusx_sim_setup()
 arguments
     voxelDimensions (1,3) double {mustBeNumeric}
     dimensionUnit   (1,:) char

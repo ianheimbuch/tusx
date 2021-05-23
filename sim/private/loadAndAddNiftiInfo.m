@@ -1,7 +1,7 @@
 function nifti = loadAndAddNiftiInfo(niftiFile, saveToDrive, overwrite, coerceToBinary)
 %loadAndAddNiftiInfo Avoids creating gridded structure if file has already
 %been created
-% Helper function for simulation3D_setup()
+% Helper function for tusx_sim_setup()
 %   Consolidated multiple lines under "SKULL IMPORT and TRIMMING"
 %   Consolidation into function allows for running multiple times, such as
 %   for skull mask and brain mask

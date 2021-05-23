@@ -1,13 +1,13 @@
-function source_p = simulation3D_setup_sourceFocus(source, kgrid,...
+function source_p = sim_setup_sourceFocus(source, kgrid,...
     transd_ind, target_ind, focus_m, speedSound)
-% simulation3D_setup_sourceFocus Helper function for simulation3D_setup
+% sim_setup_sourceFocus Helper function for tusx_sim_setup()
 %   Adjusts the pressure traces to match the desired focal length using the
 %   k-Wave function focus()
 %   Output:
 %       source_p: Adjusted form of source.p
 %
 %   If focus_m is the same as the radius of curvature of a spherical cap
-%   voxel mask in source.p_mask, that means simulation3D_setup_sourceFocus
+%   voxel mask in source.p_mask, that means sim_setup_sourceFocus
 %   is slightly refining the offsets of the pressure delays to more
 %   accurately matched the aliased curvature of source.p_mask
 arguments
