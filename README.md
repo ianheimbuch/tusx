@@ -18,5 +18,13 @@ TUSX (Transcranial Ultrasound Simulation Toolbox) is an open-source MATLAB toolb
 - **How do you pronounce TUSX?**
   - I pronounce TUSX as "tusks" (note the elephant motif in the 'T' of the TUSX logo). But whatever works for you.
 
+## Citing TUSX
+If you use TUSX, please cite both TUSX and k-Wave:
+### TUSX
+* Ian S Heimbuch, Guido C Faas, Marco Iacoboni, Andrew C Charles, "TUSX: an accessible toolbox for transcranial ultrasound simulation," bioRxiv 2021.06.03.446963; doi: https://doi.org/10.1101/2021.06.03.446963
+### k-Wave
+* B. E. Treeby and B. T. Cox, "k-Wave: MATLAB toolbox for the simulation and reconstruction of photoacoustic wave-fields," J. Biomed. Opt., vol. 15, no. 2, p. 021314, 2010.
+* *(Additional k-Wave citation details available on the [k-Wave website](http://www.k-wave.org/license.php)*)
+
 ## Credits
 TUSX was created by Ian Heimbuch (@ianheimbuch) at the University of California, Los Angeles

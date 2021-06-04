@@ -284,7 +284,8 @@ o = struct;
 o.runOnGPU = p.Results.runOnGPU;
 
 % Set whether restrict sensor grid to the brain (for efficiency)
-switch p.Results.brainMaskNifti
+brainMaskNifti = p.Results.brainMaskNifti;
+switch brainMaskNifti
     case ''
         restrictSensorToBrain = false;
     otherwise
@@ -294,7 +295,6 @@ switch p.Results.brainMaskNifti
             error('skullNifti and brainMaskNifti files do not match')
         end
 end
-brainMaskNifti = p.Results.brainMaskNifti;
 
 % Set CFL number (default is 0.3)
 CFLnumber   = p.Results.CFLnumber;
