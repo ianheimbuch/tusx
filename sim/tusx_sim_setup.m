@@ -12,7 +12,7 @@ function [kgrid, medium, source, sensor, input_args, infoStruct, grids] = ...
 %   
 %   Inputs:
 %
-%   skullNifti:     File path to nifti file
+%   skullNifti:     File path to NIfTI file
 %   scalpLocation:  3-element array of NIfTI voxel coordinates (fslX, fslY,
 %                   fslZ). Example: [104,6,122]
 %   ctxTarget:      3-element array of NIfTI voxel coordinates (fslX, fslY,
@@ -40,7 +40,11 @@ function [kgrid, medium, source, sensor, input_args, infoStruct, grids] = ...
 %   'water': Structure of acoustic values for water
 %            If set, entire acoustic medium is set to values of water (no
 %            skull)
-%   'transducer': Structure of values of transducer
+%   'transducer': Structure of values of transducer. Fields:
+%                   .focalLength_m: Focal length of the transducer
+%                   .freq_MHz: Acoustic frequency [Hertz] of the transducer
+%                   .source_mag_Pa: Magnitude [Pascals] of a single grid
+%                   point of the transducer.
 %   'record': Cell array of character arrays. To be passed to
 %             kspaceFirstOrder3D as sensor.record
 %             Default: {'p_final', 'p_max', 'p_rms'}
@@ -103,6 +107,8 @@ end
 arguments (Repeating)
     varargin
 end
+
+kWaveCheck; % Check that k-Wave is on MATLAB's search path
 
 % Parse inputs
 %   transducerSpecs, brain, and skull: structures that specify respective
