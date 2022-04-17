@@ -38,7 +38,7 @@ The central function in TUSX is [`tusx_sim_setup`](sim/tusx_sim_setup.m):
 [kgrid, medium, source, sensor, input_args] = tusx_sim_setup(skullMask_filename, scVox, cxVox, scale, alphaPower)
 ```
 ### Parameters:
-* `skullNifti`: File path to NIfTI file.
+* `skullNifti`: File path to NIfTI file of binary skull volume (i.e. skull mask).
 * `scalpLocation`: 3-element array of NIfTI voxel coordinates (fslX, fslY, fslZ).
   * Example: `scalpLocation = [104,6,122]`
 * `ctxTarget`: 3-element array of NIfTI voxel coordinates (fslX, fslY, fslZ).
@@ -74,6 +74,9 @@ kspaceFirstOrder3D(kgrid, medium, source, sensor, input_args{:})
 * MATLAB R2020a (or newer)
 * Image Processing Toolbox (MATLAB)
 * k-Wave
+
+# Tutorials
+Tutorial documentaion available [here](tutorials/README.md).
 
 # Citing TUSX
 If you use TUSX, please cite both **TUSX** and **k-Wave**:
