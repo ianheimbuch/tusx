@@ -13,10 +13,10 @@ function [kgrid, medium, source, sensor, input_args, infoStruct, grids] = ...
 %   Inputs:
 %
 %   skullNifti:     File path to NIfTI file
-%   scalpLocation:  3-element array of NIfTI voxel coordinates (fslX, fslY,
-%                   fslZ). Example: [104,6,122]
-%   ctxTarget:      3-element array of NIfTI voxel coordinates (fslX, fslY,
-%                   fslZ). Example: [105,34,116]
+%   scalpLocation:  3-element array of NIfTI voxel coordinates (niiX, niiY,
+%                   niiZ). Example: [104,6,122]
+%   ctxTarget:      3-element array of NIfTI voxel coordinates (niiX, niiY,
+%                   niiZ). Example: [105,34,116]
 %   scale:          Integer to scale up by (upscale resolution via nearest
 %                   neighbor interpolation)
 %   alphaPower:     y of alpha coeff. Dictates if dispersion is simulated.
@@ -98,7 +98,7 @@ function [kgrid, medium, source, sensor, input_args, infoStruct, grids] = ...
 % Copyright 2021 Ian S. Heimbuch
 %   Open Source License: BSD-3-Clause (see LICENSE.md)
 arguments
-    skullNifti              char
+    skullNifti      (1,:)   char
     scalpLocation   (1,3)           {mustBeNumeric}
     ctxTarget       (1,3)           {mustBeNumeric}
     scale           (1,1)           {mustBeInteger, mustBePositive}
@@ -162,11 +162,11 @@ kgrid.makeTime(medium.sound_speed, CFLnumber);
 source = sim_setup_sourceTraces(source, kgrid, medium, transducerSpecs);
 
 % Adjust the pressure traces to match the desired focal length
-%   NOTE: Currently uses the radius of curvature of the makeBowl() function
-%   for the focal length here. Ideally there would be two focal lengths:
-%   the curvature of radius for makeBowl() (transducerSpecs.focalLength_m)
-%   and a focal length for focus(). Here we would need the focal length for
-%   focus().
+%   NOTE: Currently sim_setup_sourceFocus uses the radius of curvature of
+%   the makeBowl() function (as used in transducerPlacement) for the focal
+%   length here. Ideally there would be two focal lengths: the curvature of
+%   radius for makeBowl() (transducerSpecs.focalLength_m) and a focal
+%   length for focus(). Here we would need the focal length for focus().
 %
 %   If transducerSpecs.focalLength_m is used as the focal length here, that
 %   means sim_setup_sourceFocus is slightly refining the offsets

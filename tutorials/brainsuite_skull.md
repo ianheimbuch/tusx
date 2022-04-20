@@ -24,3 +24,6 @@
 * Consider using **3D brush** option for initial fixes, since it will color in multiple layers at once.
 * BrainSuite was never really designed to handle skull masking well (it's specialty is brain segmentation and diffusion, after all). As such, there is likely a lot you will have to fix using this technique.
     * If you have a preferred skull masking technique, you can always import an externally created mask into BrainSuite (or do the hand segmentation process on another MRI software of your choice, such as [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes))
+
+---
+[[<- Return to Tutorials page](README.md)]

@@ -17,6 +17,11 @@ function [p_mask, piezo_ind, target_ind] = transducerPlacement(piezoCoor,targetC
 %                   WARNING: Grid dimensions must be equal in all
 %                   directions!!!
 %
+%   Note:       Width of transducer ('diameter' in the code) is currently
+%               set to match the focalLength_m. This is could be changed in
+%               the future with the addition of an optional 'diameter'
+%               (i.e. aperture') parameter.
+%
 % Outputs:
 %   p_mask:     Matrix wehre 'True' voxels denote where transducer exists
 %               (logical matrix)
