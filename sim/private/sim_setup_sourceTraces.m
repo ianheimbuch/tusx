@@ -10,7 +10,7 @@ end
 % % Set pressure pattern (transducer output)
 %   Define time-varying sinusoidal source/s
 source_freq_MHz = transducerSpecs.freq_MHz; % [MHz]
-source_freq_Hz = source_freq_MHz / 1000;    % [Hz] Convert MHz to Hz
+source_freq_Hz = source_freq_MHz * 1e6;    % [Hz] Convert MHz to Hz
 source_mag = transducerSpecs.source_mag_Pa; % [Pa]
 source.p = source_mag * sin(2 * pi * source_freq_Hz * kgrid.t_array);
 
