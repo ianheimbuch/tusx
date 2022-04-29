@@ -26,10 +26,12 @@ end
 
 if coerceToBinary
     % Cast to logical
+    img = single(img); % Temporarily cast to single to avoid issues with type int
     thresh = graythresh(img);       % Global threshold
     img = imbinarize(img, thresh);  % Same as imbinarize( ___ ,'global'))
 elseif length(unique(img)) < 2 % If object is binary, but coersion to binary wasn't requested
     % Cast to logical anyway
+    img = single(img); % Temporarily cast to single to avoid issues with type int
     thresh = graythresh(img);       % Global threshold
     img = imbinarize(img, thresh);  % Same as imbinarize( ___ ,'global'))
     warning('Image is binary. Converting to logical.');

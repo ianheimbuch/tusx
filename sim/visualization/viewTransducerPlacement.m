@@ -1,6 +1,6 @@
 function combinedMask = viewTransducerPlacement(densityMask, sourceP_mask)
 %VIEWTRANSDUCERPLACEMENT Make combined skull and transducer mask
-%   For use in QC of transducer placement in simulation3D_batch pipeline
+%   For use in QC of transducer placement for TUSX
 densities = unique(densityMask); % Get skull, brain densities of binary mask
 
 if length(densities) ~= 2
