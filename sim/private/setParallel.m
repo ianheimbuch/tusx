@@ -16,7 +16,7 @@ if runOnGPU == true
     
     if cuda >=3          % CUDA version 3.0 or higher
         CPUorGPU = 'gpuArray-single';   % Matlab minimum is 3.0
-        disp('Running on GPU')
+        disp('Set to run on GPU')
     else
         CPUorGPU = 'single';
         warning('GPU CUDA version does not meet minimum requirement. Running on CPU instead')

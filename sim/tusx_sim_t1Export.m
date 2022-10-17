@@ -115,7 +115,7 @@ warning('This function, while public, has not been heavily vetted.')
 % Override input:
 o.initialSmooth = false; % So structural image is not smoothed
 
-t1 = tusx_sim_setup_volumePrep(o, p, t1Nifti,...
+t1 = sim_setup_volumePrep(o, p, t1Nifti,...
     scalpLocation, ctxTarget, scale, 'coerceImageToBinary', false);
 %   coerceImageToBinary == false so T1 image data stays intact
 
@@ -174,12 +174,12 @@ o = struct;
 o.runOnGPU = p.Results.runOnGPU;
 
 % Set whether restrict sensor grid to the brain (for efficiency)
-switch p.Results.brainMaskNifti
+brainMaskNifti = p.Results.brainMaskNifti;
+switch brainMaskNifti
     case ''
         restrictSensorToBrain = false;
     otherwise
         restrictSensorToBrain = true;
-        brainMaskNifti = p.Results.brainMaskNifti;
         % Check that the two niftis match
         if ~doNiftisMatchSpace(brainMaskNifti, skullNifti)
             error('skullNifti and brainMaskNifti files do not match')
